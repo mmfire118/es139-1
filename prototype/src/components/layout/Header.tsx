@@ -45,6 +45,12 @@ export default function Header() {
             >
               New
             </Link>
+            <Link
+              to="/customize"
+              className="text-gray-600 dark:text-gray-300 hover:text-reddit-orange transition-colors font-medium"
+            >
+              Customize
+            </Link>
           </nav>
 
           {/* Theme Toggle & Mobile Menu */}
@@ -100,6 +106,13 @@ export default function Header() {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 New
+              </Link>
+              <Link
+                to="/customize"
+                className="text-gray-600 dark:text-gray-300 hover:text-reddit-orange transition-colors py-2 font-medium"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Customize
               </Link>
             </nav>
           </div>
