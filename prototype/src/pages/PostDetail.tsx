@@ -1,19 +1,45 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Play, Pause, Volume2, Maximize } from 'lucide-react';
 import VoteControls from '../components/post/VoteControls';
+import StyledOverlay from '../components/post/StyledOverlay';
 import { mockPosts } from '../data/mockPosts';
 import { getCommentsForPost, mockComments } from '../data/mockComments';
 import { Post, Comment } from '../types';
+
+const POSTS_STORAGE_KEY = 'highlighthub_custom_posts';
 
 export default function PostDetail() {
   const { postId } = useParams<{ postId: string }>();
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentVideoTime, setCurrentVideoTime] = useState(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (postId) {
+      // Try to find in custom posts first
+      try {
+        const storedPosts = localStorage.getItem(POSTS_STORAGE_KEY);
+        const customPosts = storedPosts ? JSON.parse(storedPosts) : [];
+        const parsedCustomPosts = customPosts.map((post: any) => ({
+          ...post,
+          createdAt: new Date(post.createdAt),
+          updatedAt: new Date(post.updatedAt)
+        }));
+
+        const foundCustomPost = parsedCustomPosts.find((p: Post) => p.id === postId);
+        if (foundCustomPost) {
+          setPost(foundCustomPost);
+          setComments(getCommentsForPost(postId));
+          return;
+        }
+      } catch (error) {
+        console.error('Error loading custom post:', error);
+      }
+
+      // Fall back to mock posts
       const foundPost = mockPosts.find(p => p.id === postId);
       setPost(foundPost || null);
       setComments(getCommentsForPost(postId));
@@ -142,16 +168,44 @@ export default function PostDetail() {
               {post.description}
             </p>
 
-            {/* Video Player */}
-            <div className="relative rounded-lg overflow-hidden bg-gray-900 mb-6 aspect-video">
-              <video
-                className="w-full h-full"
-                poster={post.thumbnailUrl}
-                controls
-              >
-                <source src={post.videoUrl} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+            {/* Video Player with Overlays */}
+            <div className="relative rounded-lg overflow-hidden bg-gray-900 mb-6">
+              <div className="relative aspect-video">
+                <video
+                  ref={videoRef}
+                  className="w-full h-full object-contain"
+                  poster={post.thumbnailUrl}
+                  controls
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                  onTimeUpdate={(e) => {
+                    setCurrentVideoTime(e.currentTarget.currentTime);
+                  }}
+                  onSeeked={(e) => {
+                    setCurrentVideoTime(e.currentTarget.currentTime);
+                  }}
+                >
+                  <source src={post.videoUrl} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+
+                {/* Display overlays if this is a custom highlight */}
+                {post.overlays && post.overlays.map((overlay) => (
+                  <StyledOverlay
+                    key={overlay.factId}
+                    overlay={overlay}
+                    currentVideoTime={currentVideoTime}
+                  />
+                ))}
+              </div>
+
+              {post.overlays && post.overlays.length > 0 && (
+                <div className="bg-gray-800 px-4 py-2 text-center">
+                  <p className="text-xs text-gray-400">
+                    ✨ This highlight features {post.overlays.length} custom data overlay{post.overlays.length > 1 ? 's' : ''}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Player Stats */}

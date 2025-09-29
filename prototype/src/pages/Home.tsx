@@ -1,19 +1,41 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PostCard from '../components/post/PostCard';
+import LiveGames from '../components/live/LiveGames';
 import { mockPosts, getSortedPosts } from '../data/mockPosts';
 import { Post, SortOption } from '../types';
 
+const POSTS_STORAGE_KEY = 'highlighthub_custom_posts';
+
 export default function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [posts, setPosts] = useState<Post[]>(mockPosts);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [currentSort, setCurrentSort] = useState<SortOption>('hot');
 
+  // Load posts from localStorage and merge with mock posts
   useEffect(() => {
+    const loadPosts = () => {
+      try {
+        const storedPosts = localStorage.getItem(POSTS_STORAGE_KEY);
+        const customPosts = storedPosts ? JSON.parse(storedPosts) : [];
+        // Convert date strings back to Date objects
+        const parsedCustomPosts = customPosts.map((post: any) => ({
+          ...post,
+          createdAt: new Date(post.createdAt),
+          updatedAt: new Date(post.updatedAt)
+        }));
+        return [...parsedCustomPosts, ...mockPosts];
+      } catch (error) {
+        console.error('Error loading posts from localStorage:', error);
+        return mockPosts;
+      }
+    };
+
+    const allPosts = loadPosts();
     const sortParam = searchParams.get('sort') as SortOption;
     const validSort = ['hot', 'top', 'new'].includes(sortParam) ? sortParam : 'hot';
     setCurrentSort(validSort);
-    setPosts(getSortedPosts(mockPosts, validSort));
+    setPosts(getSortedPosts(allPosts, validSort));
   }, [searchParams]);
 
   const handleVote = (postId: string, voteType: 'up' | 'down') => {
@@ -49,6 +71,11 @@ export default function Home() {
 
   return (
     <div className="max-w-4xl mx-auto">
+      {/* Live Games Section */}
+      <div className="mb-6">
+        <LiveGames />
+      </div>
+
       {/* Sort Tabs */}
       <div className="flex space-x-1 mb-6 bg-white dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-700">
         {(['hot', 'top', 'new'] as SortOption[]).map((sort) => (

@@ -1,64 +1,108 @@
-import { useState, useRef, useEffect } from 'react';
-import { Move } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { GripVertical } from 'lucide-react';
 import { HighlightFact } from '../../types';
+import { OverlayStyle } from '../../types/Customizer';
 
 interface VideoOverlayProps {
   fact: HighlightFact;
   position: { x: number; y: number };
   isDraggable: boolean;
+  style?: OverlayStyle;
+  duration?: number;
+  delay?: number;
+  currentVideoTime?: number; // in seconds, undefined means always show (for editor preview)
   onPositionChange?: (position: { x: number; y: number }) => void;
 }
 
-export default function VideoOverlay({ 
-  fact, 
-  position, 
-  isDraggable, 
-  onPositionChange 
+export default function VideoOverlay({
+  fact,
+  position,
+  isDraggable,
+  style = 'modern',
+  duration = 0,
+  delay = 0,
+  currentVideoTime,
+  onPositionChange
 }: VideoOverlayProps) {
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [currentPosition, setCurrentPosition] = useState(position);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const dragStartPos = useRef({ x: 0, y: 0 });
+
+  // Update position when prop changes
+  useEffect(() => {
+    setCurrentPosition(position);
+  }, [position]);
+
+  // Calculate visibility based on video time (or always show in editor)
+  const isVisible = (() => {
+    // If no video time provided, always show (editor mode)
+    if (currentVideoTime === undefined) return true;
+
+    // If video hasn't reached delay time yet, don't show
+    if (currentVideoTime < delay) return false;
+
+    // If duration is 0, always show after delay
+    if (duration === 0) return true;
+
+    // If duration is set, show between delay and delay+duration
+    const endTime = delay + duration;
+    return currentVideoTime >= delay && currentVideoTime < endTime;
+  })();
 
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'performance':
-        return 'bg-green-600 border-green-500';
+        return { primary: '#10b981', secondary: '#059669', light: '#d1fae5' };
       case 'context':
-        return 'bg-blue-600 border-blue-500';
+        return { primary: '#3b82f6', secondary: '#2563eb', light: '#dbeafe' };
       case 'probability':
-        return 'bg-purple-600 border-purple-500';
+        return { primary: '#a855f7', secondary: '#9333ea', light: '#f3e8ff' };
       default:
-        return 'bg-gray-600 border-gray-500';
+        return { primary: '#6b7280', secondary: '#4b5563', light: '#f3f4f6' };
     }
   };
 
-  // Global mouse event handlers
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (!isDraggable || !overlayRef.current) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const rect = overlayRef.current.getBoundingClientRect();
+    dragStartPos.current = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    };
+    setIsDragging(true);
+  }, [isDraggable]);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isDragging || !overlayRef.current || !onPositionChange) return;
+
+    const container = overlayRef.current.parentElement;
+    if (!container) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const overlayWidth = overlayRef.current.offsetWidth;
+    const overlayHeight = overlayRef.current.offsetHeight;
+
+    let newX = e.clientX - containerRect.left - dragStartPos.current.x;
+    let newY = e.clientY - containerRect.top - dragStartPos.current.y;
+
+    newX = Math.max(0, Math.min(containerRect.width - overlayWidth, newX));
+    newY = Math.max(0, Math.min(containerRect.height - overlayHeight, newY));
+
+    setCurrentPosition({ x: newX, y: newY });
+  }, [isDragging, onPositionChange]);
+
+  const handleMouseUp = useCallback(() => {
+    if (isDragging && onPositionChange) {
+      onPositionChange(currentPosition);
+    }
+    setIsDragging(false);
+  }, [isDragging, currentPosition, onPositionChange]);
+
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging || !onPositionChange) return;
-
-      // Calculate new position relative to the video container
-      const container = overlayRef.current?.parentElement;
-      if (!container) return;
-
-      const containerRect = container.getBoundingClientRect();
-      const newX = e.clientX - containerRect.left - dragOffset.x;
-      const newY = e.clientY - containerRect.top - dragOffset.y;
-
-      // Constrain to container bounds
-      const overlayWidth = overlayRef.current?.offsetWidth || 100;
-      const overlayHeight = overlayRef.current?.offsetHeight || 40;
-      
-      const constrainedX = Math.max(0, Math.min(containerRect.width - overlayWidth, newX));
-      const constrainedY = Math.max(0, Math.min(containerRect.height - overlayHeight, newY));
-
-      onPositionChange({ x: constrainedX, y: constrainedY });
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
-
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
@@ -72,65 +116,170 @@ export default function VideoOverlay({
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
     };
-  }, [isDragging, dragOffset, onPositionChange]);
+  }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!isDraggable) return;
-    
-    e.preventDefault();
-    e.stopPropagation();
+  if (!isVisible) return null;
 
-    const rect = overlayRef.current?.getBoundingClientRect();
-    if (!rect) return;
+  const colors = getCategoryColor(fact.category);
 
-    setDragOffset({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    });
-    setIsDragging(true);
+  // Render different visual styles
+  const renderOverlay = () => {
+    switch (style) {
+      case 'minimal':
+        return (
+          <div className="bg-black/80 backdrop-blur-sm px-3 py-1.5 rounded">
+            <div className="flex items-baseline space-x-2">
+              <span className="text-white/70 text-[10px] font-medium uppercase tracking-wider">{fact.label}</span>
+              <span className="text-white text-lg font-bold">{fact.value}</span>
+            </div>
+          </div>
+        );
+
+      case 'bold':
+        return (
+          <div
+            className="border-4 rounded-lg overflow-hidden"
+            style={{ borderColor: colors.primary, backgroundColor: colors.light }}
+          >
+            <div className="px-4 py-2">
+              <div className="text-xs font-black uppercase tracking-widest mb-0.5" style={{ color: colors.secondary }}>
+                {fact.label}
+              </div>
+              <div className="text-3xl font-black" style={{ color: colors.primary }}>
+                {fact.value}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'broadcast':
+        return (
+          <div className="relative">
+            <div className="absolute -left-2 top-0 bottom-0 w-1.5 rounded-full" style={{ backgroundColor: colors.primary }}></div>
+            <div className="bg-white shadow-2xl pl-4 pr-5 py-2.5 border-l-4" style={{ borderLeftColor: colors.primary }}>
+              <div className="flex items-baseline space-x-3">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                  {fact.label}
+                </div>
+                <div className="text-2xl font-black tracking-tight" style={{ color: colors.primary }}>
+                  {fact.value}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'neon':
+        return (
+          <div className="relative">
+            <div
+              className="rounded-lg px-4 py-2.5 border-2"
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                borderColor: colors.primary,
+                boxShadow: `0 0 20px ${colors.primary}80, inset 0 0 10px ${colors.primary}40`
+              }}
+            >
+              <div className="flex items-baseline space-x-2">
+                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: colors.primary, textShadow: `0 0 10px ${colors.primary}` }}>
+                  {fact.label}
+                </span>
+                <span className="text-2xl font-black" style={{ color: colors.primary, textShadow: `0 0 15px ${colors.primary}` }}>
+                  {fact.value}
+                </span>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'classic':
+        return (
+          <div className="relative">
+            <div className="bg-gradient-to-r from-black/95 to-black/85 backdrop-blur-sm">
+              <div className="h-0.5" style={{ backgroundColor: colors.primary }}></div>
+              <div className="px-5 py-2 flex items-center space-x-3">
+                <div className="w-1 h-8 rounded-full" style={{ backgroundColor: colors.primary }}></div>
+                <div>
+                  <div className="text-[9px] font-semibold uppercase tracking-widest text-gray-400 mb-0.5">
+                    {fact.label}
+                  </div>
+                  <div className="text-xl font-black text-white tracking-tight">
+                    {fact.value}
+                  </div>
+                </div>
+              </div>
+              <div className="h-0.5" style={{ backgroundColor: colors.primary }}></div>
+            </div>
+          </div>
+        );
+
+      case 'compact':
+        return (
+          <div
+            className="rounded px-2 py-1 text-xs font-bold shadow-lg"
+            style={{ backgroundColor: colors.primary, color: 'white' }}
+          >
+            {fact.label}: {fact.value}
+          </div>
+        );
+
+      case 'modern':
+      default:
+        return (
+          <div className="relative">
+            <div className={`bg-gradient-to-r rounded-lg overflow-hidden backdrop-blur-sm shadow-xl`}
+              style={{
+                backgroundImage: `linear-gradient(to right, ${colors.primary}, ${colors.secondary})`
+              }}>
+              <div className="h-1" style={{ backgroundColor: colors.primary, opacity: 0.6 }}></div>
+              <div className="px-4 py-2 flex items-center space-x-3">
+                {isDraggable && (
+                  <div className="opacity-60 hover:opacity-100 transition-opacity">
+                    <GripVertical className="w-4 h-4 text-white" />
+                  </div>
+                )}
+                <div className="flex items-baseline space-x-2">
+                  <div className="text-white/90 text-xs font-semibold uppercase tracking-wider">
+                    {fact.label}
+                  </div>
+                  <div className="text-white text-2xl font-black tracking-tight">
+                    {fact.value}
+                  </div>
+                </div>
+              </div>
+              <div className="h-0.5 bg-white/20"></div>
+            </div>
+            <div
+              className="absolute inset-0 rounded-lg opacity-20 blur-xl -z-10"
+              style={{
+                backgroundImage: `linear-gradient(to right, ${colors.primary}, ${colors.secondary})`
+              }}
+            ></div>
+          </div>
+        );
+    }
   };
 
   return (
     <div
       ref={overlayRef}
-      className={`absolute z-20 ${getCategoryColor(fact.category)} text-white text-sm rounded-lg shadow-lg border-2 transition-all duration-200 select-none ${
-        isDraggable ? 'cursor-grab hover:scale-105' : 'cursor-default'
-      } ${isDragging ? 'scale-110 shadow-xl cursor-grabbing' : ''}`}
+      className={`absolute z-20 select-none transition-shadow duration-200 ${
+        isDraggable ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
+      } ${isDragging ? 'scale-105' : ''}`}
       style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
+        left: `${currentPosition.x}px`,
+        top: `${currentPosition.y}px`,
+        transform: isDragging ? 'scale(1.02)' : 'scale(1)',
+        transition: isDragging ? 'none' : 'transform 0.2s ease-out'
       }}
       onMouseDown={handleMouseDown}
     >
-      <div className="flex items-center space-x-2 px-3 py-2">
-        {/* Drag Handle */}
-        {isDraggable && (
-          <Move className="w-3 h-3 opacity-60" />
-        )}
-        
-        <div className="flex items-center space-x-2">
-          <div className="font-medium">{fact.label}</div>
-          <div className="font-bold">{fact.value}</div>
-        </div>
-      </div>
-      
-      {/* Category indicator */}
-      <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-white opacity-75">
-        <div className={`w-full h-full rounded-full ${
-          fact.category === 'performance' ? 'bg-green-400' :
-          fact.category === 'context' ? 'bg-blue-400' :
-          'bg-purple-400'
-        }`}></div>
-      </div>
-
-      {/* Visual feedback for draggable state */}
+      {renderOverlay()}
       {isDraggable && !isDragging && (
-        <div className="absolute inset-0 border-2 border-white border-opacity-30 rounded-lg pointer-events-none opacity-0 hover:opacity-100 transition-opacity">
-          <div className="absolute -top-2 -left-2 bg-white text-gray-800 text-xs px-1 rounded text-center">
-            Drag to move
-          </div>
+        <div className="absolute -top-1 -right-1 w-3 h-3 animate-pulse">
+          <div className="w-full h-full rounded-full bg-red-500 opacity-75"></div>
         </div>
       )}
     </div>
   );
-} 
+}
