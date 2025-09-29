@@ -31,6 +31,29 @@ export interface PlayerStats {
   stats: Record<string, number | string>;
 }
 
+export type OverlayStyle =
+  | 'modern'        // Current gradient style (default)
+  | 'minimal'       // Clean, simple, small
+  | 'bold'          // Large, thick borders, high contrast
+  | 'broadcast'     // TV broadcast style with accent bars
+  | 'neon'          // Glowing neon effect
+  | 'classic'       // Traditional sports lower-third
+  | 'compact';      // Very small, corner-friendly
+
+export interface OverlayData {
+  factId: string;
+  label: string;
+  value: string;
+  category: 'performance' | 'context' | 'probability';
+  position: {
+    x: number;
+    y: number;
+  };
+  style?: OverlayStyle;
+  duration?: number; // in seconds, 0 = permanent
+  delay?: number; // delay before showing, in seconds
+}
+
 export interface Post {
   id: string;
   title: string;
@@ -49,4 +72,5 @@ export interface Post {
   commentCount: number;
   createdAt: Date;
   updatedAt: Date;
+  overlays?: OverlayData[]; // For custom highlights with overlays
 } 

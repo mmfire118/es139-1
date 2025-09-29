@@ -21,6 +21,15 @@ export interface CustomizableHighlight {
   selectedFacts: string[]; // array of fact IDs
 }
 
+export type OverlayStyle =
+  | 'modern'        // Current gradient style (default)
+  | 'minimal'       // Clean, simple, small
+  | 'bold'          // Large, thick borders, high contrast
+  | 'broadcast'     // TV broadcast style with accent bars
+  | 'neon'          // Glowing neon effect
+  | 'classic'       // Traditional sports lower-third
+  | 'compact';      // Very small, corner-friendly
+
 export interface VideoOverlay {
   factId: string;
   isVisible: boolean;
@@ -28,4 +37,7 @@ export interface VideoOverlay {
     x: number;
     y: number;
   };
+  style?: OverlayStyle;
+  duration?: number; // in seconds, 0 = permanent
+  delay?: number; // delay before showing, in seconds
 } 

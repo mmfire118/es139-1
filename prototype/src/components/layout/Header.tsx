@@ -47,9 +47,9 @@ export default function Header() {
             </Link>
             <Link
               to="/customize"
-              className="text-gray-600 dark:text-gray-300 hover:text-reddit-orange transition-colors font-medium"
+              className="px-4 py-2 bg-reddit-orange text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
             >
-              Customize
+              🎨 Create Highlight
             </Link>
           </nav>
 
@@ -109,10 +109,10 @@ export default function Header() {
               </Link>
               <Link
                 to="/customize"
-                className="text-gray-600 dark:text-gray-300 hover:text-reddit-orange transition-colors py-2 font-medium"
+                className="px-4 py-2 bg-reddit-orange text-white rounded-lg hover:bg-orange-600 transition-colors font-medium text-center"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Customize
+                🎨 Create Highlight
               </Link>
             </nav>
           </div>

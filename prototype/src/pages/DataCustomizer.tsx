@@ -14,11 +14,15 @@ export default function DataCustomizer() {
   const [selectedHighlight, setSelectedHighlight] = useState<CustomizableHighlight | null>(null);
   const [currentHighlight, setCurrentHighlight] = useState<CustomizableHighlight | null>(null);
   const [overlays, setOverlays] = useState<VideoOverlay[]>([]);
+  const [postTitle, setPostTitle] = useState('');
+  const [postDescription, setPostDescription] = useState('');
 
   const handleHighlightSelect = (highlight: CustomizableHighlight) => {
     setSelectedHighlight(highlight);
     setCurrentHighlight({ ...highlight, selectedFacts: [] });
     setOverlays([]);
+    setPostTitle(highlight.title);
+    setPostDescription(highlight.description || '');
   };
 
   const handleFactToggle = (factId: string) => {
@@ -41,11 +45,33 @@ export default function DataCustomizer() {
   const handlePostToFeed = () => {
     if (!currentHighlight) return;
 
+    // Get selected facts details with overlay positions and styles
+    const overlayData = overlays
+      .map(overlay => {
+        const fact = currentHighlight.availableFacts.find(f => f.id === overlay.factId);
+        if (!fact) return null;
+        return {
+          factId: fact.id,
+          label: fact.label,
+          value: fact.value,
+          category: fact.category,
+          position: overlay.position,
+          style: overlay.style,
+          duration: overlay.duration,
+          delay: overlay.delay
+        };
+      })
+      .filter(Boolean);
+
+    const selectedFactsDetails = overlayData
+      .map(data => `${data!.label}: ${data!.value}`)
+      .join(', ');
+
     // Create a new post from the customized highlight
     const newPost: Post = {
       id: `custom_post_${Date.now()}`,
-      title: `${currentHighlight.title} (Custom)`,
-      description: `Customized highlight with ${currentHighlight.selectedFacts.length} data overlays`,
+      title: postTitle || currentHighlight.title,
+      description: postDescription || `Customized highlight with data overlays: ${selectedFactsDetails}`,
       videoUrl: currentHighlight.videoUrl,
       thumbnailUrl: currentHighlight.thumbnailUrl,
       context: currentHighlight.context,
@@ -55,16 +81,25 @@ export default function DataCustomizer() {
       userVote: 'up',
       commentCount: 0,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      overlays: overlayData as any // Store overlay data
     };
 
-    // In a real app, this would save to backend
-    // For now, we'll simulate success and redirect
-    console.log('Posted customized highlight:', newPost);
-    
-    // Show success message and redirect to home
-    alert('Your customized highlight has been posted to the feed!');
-    navigate('/');
+    // Save to localStorage
+    try {
+      const POSTS_STORAGE_KEY = 'highlighthub_custom_posts';
+      const existingPosts = localStorage.getItem(POSTS_STORAGE_KEY);
+      const customPosts = existingPosts ? JSON.parse(existingPosts) : [];
+      customPosts.unshift(newPost); // Add to beginning
+      localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(customPosts));
+
+      console.log('Posted customized highlight:', newPost);
+      alert('Your customized highlight has been posted to the feed!');
+      navigate('/');
+    } catch (error) {
+      console.error('Error saving post:', error);
+      alert('Error posting highlight. Please try again.');
+    }
   };
 
   const canPost = currentHighlight && currentHighlight.selectedFacts.length > 0;
@@ -139,25 +174,60 @@ export default function DataCustomizer() {
           </div>
         ) : (
           /* Step 2: Customize Selected Highlight */
-          <div className="flex h-[calc(100vh-200px)] space-x-6">
-            {/* Main Editor */}
-            <div className="flex-1 flex flex-col">
+          <div className="space-y-6">
+            {/* Title and Description Editor */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Post Details
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    value={postTitle}
+                    onChange={(e) => setPostTitle(e.target.value)}
+                    placeholder="Enter a title for your highlight"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-reddit-orange"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={postDescription}
+                    onChange={(e) => setPostDescription(e.target.value)}
+                    placeholder="Add a description to provide context"
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-reddit-orange resize-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex h-[calc(100vh-400px)] space-x-6">
+              {/* Main Editor */}
+              <div className="flex-1 flex flex-col">
+                {currentHighlight && (
+                  <VideoOverlayEditor
+                    highlight={currentHighlight}
+                    onOverlayChange={handleOverlayChange}
+                  />
+                )}
+              </div>
+
+              {/* Sidebar */}
               {currentHighlight && (
-                <VideoOverlayEditor
-                  highlight={currentHighlight}
-                  onOverlayChange={handleOverlayChange}
+                <FactSidebar
+                  facts={currentHighlight.availableFacts}
+                  selectedFacts={currentHighlight.selectedFacts}
+                  onFactToggle={handleFactToggle}
                 />
               )}
             </div>
-
-            {/* Sidebar */}
-            {currentHighlight && (
-              <FactSidebar
-                facts={currentHighlight.availableFacts}
-                selectedFacts={currentHighlight.selectedFacts}
-                onFactToggle={handleFactToggle}
-              />
-            )}
           </div>
         )}
       </div>
