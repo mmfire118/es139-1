@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Home from './pages/Home';
 import PostDetail from './pages/PostDetail';
+import DataCustomizer from './pages/DataCustomizer';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/post/:postId" element={<PostDetail />} />
+            <Route path="/customize" element={<DataCustomizer />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

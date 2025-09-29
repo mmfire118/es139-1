@@ -51,13 +51,19 @@ prototype/
 │   │   │   ├── VoteControls.tsx
 │   │   │   ├── VideoPlayer.tsx
 │   │   │   └── StatsPanel.tsx
-│   │   └── comments/         # Comment components
-│   │       ├── CommentThread.tsx
-│   │       ├── CommentItem.tsx
-│   │       └── CommentForm.tsx
+│   │   ├── comments/         # Comment components
+│   │   │   ├── CommentThread.tsx
+│   │   │   ├── CommentItem.tsx
+│   │   │   └── CommentForm.tsx
+│   │   └── customizer/       # Data customizer components
+│   │       ├── VideoOverlayEditor.tsx
+│   │       ├── FactSidebar.tsx
+│   │       ├── VideoOverlay.tsx
+│   │       └── HighlightSelector.tsx
 │   ├── pages/                # Page components
 │   │   ├── Home.tsx
 │   │   ├── PostDetail.tsx
+│   │   ├── DataCustomizer.tsx
 │   │   └── NotFound.tsx
 │   ├── hooks/                # Custom React hooks
 │   │   ├── useLocalStorage.ts
@@ -71,7 +77,8 @@ prototype/
 │   ├── data/                 # Mock data
 │   │   ├── mockPosts.ts
 │   │   ├── mockComments.ts
-│   │   └── mockUsers.ts
+│   │   ├── mockUsers.ts
+│   │   └── mockCustomizableHighlights.ts
 │   ├── utils/                # Utility functions
 │   │   ├── sorting.ts
 │   │   ├── formatting.ts
@@ -176,6 +183,109 @@ interface SortConfig {
 }
 ```
 
+### 4.3 Data Customizer Types
+```typescript
+interface HighlightFact {
+  id: string;
+  label: string;
+  value: string;
+  category: 'performance' | 'context' | 'probability';
+  position?: {
+    x: number; // percentage from left
+    y: number; // percentage from top
+  };
+}
+
+interface CustomizableHighlight {
+  id: string;
+  title: string;
+  videoUrl: string;
+  thumbnailUrl: string;
+  context: GameContext;
+  availableFacts: HighlightFact[];
+  selectedFacts: string[]; // array of fact IDs
+}
+
+interface VideoOverlay {
+  factId: string;
+  isVisible: boolean;
+  position: {
+    x: number;
+    y: number;
+  };
+}
+```
+
+## 4.4 Data Customizer Page Feature
+
+### 4.4.1 Video Selection
+- User chooses from a set of preloaded highlight clips (mocked)
+- Each clip has associated contextual facts/stats
+- Preview thumbnail shows sport type and basic context
+
+### 4.4.2 Contextual Sidebar
+- Sidebar displays relevant stats/facts tied to the selected clip
+- Facts categorized by type:
+  - **Performance**: "Catch %: 78%", "Shot Quality: High"
+  - **Context**: "Defensive Scheme: 2-3 Zone", "Game Situation: 4th Quarter"
+  - **Probability**: "Win Probability Shift: +12%", "Expected Points: 2.4"
+- Checkbox interface for selecting facts to display
+
+### 4.4.3 Customization Workflow
+1. User selects one or more facts from the sidebar
+2. Facts appear as overlays on the video (absolute-positioned elements)
+3. User can drag overlays to reposition them on the video
+4. Real-time preview of customized highlight
+5. Toggle overlays on/off via sidebar selections
+
+### 4.4.4 Posting Integration
+- Once complete, customized highlight can be "posted" back to the feed
+- Mocked posting: appended to local data array
+- Maintains overlay positions and selected facts
+- Creates new Post object with customization data
+
+### 4.4.5 Technical Implementation
+
+**Video Overlay Rendering:**
+- Absolute-positioned React components layered over video
+- CSS transforms for positioning overlays
+- Z-index management for proper layering
+- Responsive positioning that scales with video size
+
+**Mock Data Structure:**
+```typescript
+const mockCustomizableHighlights: CustomizableHighlight[] = [
+  {
+    id: 'custom1',
+    title: 'Mahomes TD Pass',
+    videoUrl: '/videos/mahomes-td.mp4',
+    thumbnailUrl: '/images/mahomes-thumb.jpg',
+    context: { /* GameContext */ },
+    availableFacts: [
+      {
+        id: 'fact1',
+        label: 'Completion %',
+        value: '78%',
+        category: 'performance'
+      },
+      {
+        id: 'fact2',
+        label: 'Defensive Scheme',
+        value: 'Cover 2',
+        category: 'context'
+      },
+      {
+        id: 'fact3',
+        label: 'Win Probability Shift',
+        value: '+12%',
+        category: 'probability'
+      }
+    ],
+    selectedFacts: []
+  }
+];
+```
+
 ## 5. Component Specifications
 
 ### 5.1 PostCard Component
@@ -217,6 +327,46 @@ interface SortConfig {
   - Contextual stats based on sport
   - Team colors and logos
 
+### 5.5 DataCustomizer Component
+- **Purpose**: Main page for customizing highlight videos with data overlays
+- **Props**: None (manages own state)
+- **Features**:
+  - Video selection from preloaded clips
+  - Contextual sidebar with selectable facts
+  - Real-time overlay preview
+  - Drag-and-drop overlay positioning
+  - Post creation functionality
+
+### 5.6 VideoOverlayEditor Component
+- **Purpose**: Interactive video player with overlay editing capabilities
+- **Props**: `highlight: CustomizableHighlight`, `onOverlayChange: (overlays: VideoOverlay[]) => void`
+- **Features**:
+  - HTML5 video player with custom controls
+  - Draggable overlay positioning
+  - Overlay visibility toggles
+  - Responsive overlay scaling
+  - Preview mode toggle
+
+### 5.7 FactSidebar Component
+- **Purpose**: Sidebar for selecting and managing highlight facts
+- **Props**: `facts: HighlightFact[]`, `selectedFacts: string[]`, `onFactToggle: (factId: string) => void`
+- **Features**:
+  - Categorized fact display
+  - Checkbox selection interface
+  - Fact search and filtering
+  - Category-based grouping
+  - Visual fact previews
+
+### 5.8 VideoOverlay Component
+- **Purpose**: Individual overlay element displayed on video
+- **Props**: `fact: HighlightFact`, `position: {x: number, y: number}`, `isDraggable: boolean`
+- **Features**:
+  - Absolute positioning
+  - Drag-and-drop functionality
+  - Custom styling per fact category
+  - Fade in/out animations
+  - Responsive positioning
+
 ## 6. Routing Structure
 
 ```typescript
@@ -234,6 +384,10 @@ const routes = [
   {
     path: '/post/:postId',
     element: <PostDetail />
+  },
+  {
+    path: '/customize',
+    element: <DataCustomizer />
   },
   {
     path: '*',
@@ -430,6 +584,9 @@ npm run type-check  # Run TypeScript checking
 - ✅ Video playback works smoothly
 - ✅ Comments display and threading works
 - ✅ Mobile responsive design
+- ✅ Data customizer page with video overlay editing
+- ✅ Fact selection and overlay positioning
+- ✅ Custom highlight posting to feed
 
 ### 18.2 User Experience Goals
 - ✅ Intuitive navigation similar to Reddit
