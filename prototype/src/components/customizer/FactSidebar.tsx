@@ -26,18 +26,6 @@ export default function FactSidebar({ facts, selectedFacts, onFactToggle }: Fact
     return matchesSearch && matchesCategory;
   });
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'performance':
-        return 'text-green-600 bg-green-50 border-green-200';
-      case 'context':
-        return 'text-blue-600 bg-blue-50 border-blue-200';
-      case 'probability':
-        return 'text-purple-600 bg-purple-50 border-purple-200';
-      default:
-        return 'text-gray-600 bg-gray-50 border-gray-200';
-    }
-  };
 
   const getCategoryBadgeColor = (category: string) => {
     switch (category) {

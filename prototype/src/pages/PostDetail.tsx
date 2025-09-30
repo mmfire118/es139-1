@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Play, Pause, Volume2, Maximize } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import VoteControls from '../components/post/VoteControls';
 import StyledOverlay from '../components/post/StyledOverlay';
 import { mockPosts } from '../data/mockPosts';
-import { getCommentsForPost, mockComments } from '../data/mockComments';
+import { getCommentsForPost } from '../data/mockComments';
 import { Post, Comment } from '../types';
 
 const POSTS_STORAGE_KEY = 'highlighthub_custom_posts';
@@ -13,7 +13,6 @@ export default function PostDetail() {
   const { postId } = useParams<{ postId: string }>();
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [currentVideoTime, setCurrentVideoTime] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -121,7 +120,7 @@ export default function PostDetail() {
           <div className="flex-shrink-0">
             <VoteControls
               votes={post.votes}
-              userVote={post.userVote}
+              userVote={post.userVote ?? null}
               onVote={handleVote}
             />
           </div>
@@ -176,8 +175,6 @@ export default function PostDetail() {
                   className="w-full h-full object-contain"
                   poster={post.thumbnailUrl}
                   controls
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
                   onTimeUpdate={(e) => {
                     setCurrentVideoTime(e.currentTarget.currentTime);
                   }}
@@ -250,7 +247,7 @@ export default function PostDetail() {
                       <div className="flex-shrink-0">
                         <VoteControls
                           votes={comment.votes}
-                          userVote={comment.userVote}
+                          userVote={comment.userVote ?? null}
                           onVote={(type) => handleCommentVote(comment.id, type)}
                           size="sm"
                         />
@@ -276,7 +273,7 @@ export default function PostDetail() {
                                   <div className="flex-shrink-0">
                                     <VoteControls
                                       votes={reply.votes}
-                                      userVote={reply.userVote}
+                                      userVote={reply.userVote ?? null}
                                       onVote={() => {}}
                                       size="sm"
                                     />

@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { OverlayData, OverlayStyle } from '../../types/Post';
+import { OverlayData } from '../../types/Post';
 
 interface StyledOverlayProps {
   overlay: OverlayData;

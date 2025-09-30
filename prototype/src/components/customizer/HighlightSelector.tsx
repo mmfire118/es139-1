@@ -21,15 +21,6 @@ export default function HighlightSelector({
     }
   };
 
-  const getSportColor = (sport: string) => {
-    switch (sport) {
-      case 'basketball': return 'border-orange-400 bg-orange-50';
-      case 'football': return 'border-green-400 bg-green-50';
-      case 'soccer': return 'border-blue-400 bg-blue-50';
-      case 'baseball': return 'border-red-400 bg-red-50';
-      default: return 'border-gray-400 bg-gray-50';
-    }
-  };
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
