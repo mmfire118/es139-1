@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, Maximize, Eye, EyeOff, Grid, RotateCcw } from 'lucide-react';
+import { Play, Pause, Volume2, Maximize, Eye, EyeOff, Grid } from 'lucide-react';
 import VideoOverlay from './VideoOverlay';
 import StyleSettings from './StyleSettings';
 import { CustomizableHighlight, VideoOverlay as VideoOverlayType, HighlightFact, OverlayStyle } from '../../types';

@@ -5,7 +5,6 @@ import HighlightSelector from '../components/customizer/HighlightSelector';
 import VideoOverlayEditor from '../components/customizer/VideoOverlayEditor';
 import FactSidebar from '../components/customizer/FactSidebar';
 import { mockCustomizableHighlights } from '../data/mockCustomizableHighlights';
-import { mockPosts } from '../data/mockPosts';
 import { mockUsers } from '../data/mockUsers';
 import { CustomizableHighlight, VideoOverlay, Post } from '../types';
 
@@ -22,7 +21,7 @@ export default function DataCustomizer() {
     setCurrentHighlight({ ...highlight, selectedFacts: [] });
     setOverlays([]);
     setPostTitle(highlight.title);
-    setPostDescription(highlight.description || '');
+    setPostDescription('');
   };
 
   const handleFactToggle = (factId: string) => {

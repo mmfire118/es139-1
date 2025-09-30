@@ -32,13 +32,13 @@ export interface PlayerStats {
 }
 
 export type OverlayStyle =
-  | 'modern'        // Current gradient style (default)
-  | 'minimal'       // Clean, simple, small
-  | 'bold'          // Large, thick borders, high contrast
-  | 'broadcast'     // TV broadcast style with accent bars
-  | 'neon'          // Glowing neon effect
-  | 'classic'       // Traditional sports lower-third
-  | 'compact';      // Very small, corner-friendly
+  | 'modern'
+  | 'minimal'
+  | 'bold'
+  | 'broadcast'
+  | 'neon'
+  | 'classic'
+  | 'compact';
 
 export interface OverlayData {
   factId: string;

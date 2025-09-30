@@ -1,4 +1,5 @@
 import { GameContext } from './Post';
+import type { OverlayStyle } from './Post';
 
 export interface HighlightFact {
   id: string;
@@ -20,15 +21,6 @@ export interface CustomizableHighlight {
   availableFacts: HighlightFact[];
   selectedFacts: string[]; // array of fact IDs
 }
-
-export type OverlayStyle =
-  | 'modern'        // Current gradient style (default)
-  | 'minimal'       // Clean, simple, small
-  | 'bold'          // Large, thick borders, high contrast
-  | 'broadcast'     // TV broadcast style with accent bars
-  | 'neon'          // Glowing neon effect
-  | 'classic'       // Traditional sports lower-third
-  | 'compact';      // Very small, corner-friendly
 
 export interface VideoOverlay {
   factId: string;

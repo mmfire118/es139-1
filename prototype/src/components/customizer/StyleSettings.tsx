@@ -1,5 +1,5 @@
 import { Settings, Sparkles, Zap, Tv, Radio, Award, Minimize2 } from 'lucide-react';
-import { OverlayStyle } from '../../types/Customizer';
+import { OverlayStyle } from '../../types';
 
 interface StyleSettingsProps {
   selectedStyle: OverlayStyle;

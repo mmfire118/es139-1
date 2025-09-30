@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { GripVertical } from 'lucide-react';
-import { HighlightFact } from '../../types';
-import { OverlayStyle } from '../../types/Customizer';
+import { HighlightFact, OverlayStyle } from '../../types';
 
 interface VideoOverlayProps {
   fact: HighlightFact;

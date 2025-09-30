@@ -2,4 +2,4 @@ export * from './Post';
 export * from './Comment';
 export * from './User';
 export * from './Vote';
-export * from './Customizer'; 
+export * from './Customizer';

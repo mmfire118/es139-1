@@ -36,7 +36,7 @@ export default function PostCard({ post, onVote }: PostCardProps) {
         <div className="flex-shrink-0">
           <VoteControls
             votes={post.votes}
-            userVote={post.userVote}
+            userVote={post.userVote ?? null}
             onVote={(type) => onVote(post.id, type)}
           />
         </div>
