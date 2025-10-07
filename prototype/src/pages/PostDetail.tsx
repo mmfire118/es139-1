@@ -6,6 +6,7 @@ import StyledOverlay from '../components/post/StyledOverlay';
 import { mockPosts } from '../data/mockPosts';
 import { getCommentsForPost } from '../data/mockComments';
 import { Post, Comment } from '../types';
+import InlineVideo from '../components/post/InlineVideo';
 
 const POSTS_STORAGE_KEY = 'highlighthub_custom_posts';
 
@@ -170,21 +171,16 @@ export default function PostDetail() {
             {/* Video Player with Overlays */}
             <div className="relative rounded-lg overflow-hidden bg-gray-900 mb-6">
               <div className="relative aspect-video">
-                <video
-                  ref={videoRef}
+                <InlineVideo
+                  provider={post.videoProvider ?? 'mp4'}
+                  src={(post.videoProvider === 'youtube' && post.youtubeId) ? post.youtubeId : post.videoUrl}
+                  poster={post.videoProvider === 'youtube' && post.youtubeId ? `https://i.ytimg.com/vi/${post.youtubeId}/hqdefault.jpg` : post.thumbnailUrl}
                   className="w-full h-full object-contain"
-                  poster={post.thumbnailUrl}
                   controls
-                  onTimeUpdate={(e) => {
-                    setCurrentVideoTime(e.currentTarget.currentTime);
-                  }}
-                  onSeeked={(e) => {
-                    setCurrentVideoTime(e.currentTarget.currentTime);
-                  }}
-                >
-                  <source src={post.videoUrl} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
+                  onTimeUpdate={(t) => setCurrentVideoTime(t)}
+                  onPlay={() => {}}
+                  onPause={() => {}}
+                />
 
                 {/* Display overlays if this is a custom highlight */}
                 {post.overlays && post.overlays.map((overlay) => (

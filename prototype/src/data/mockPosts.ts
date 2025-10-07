@@ -7,6 +7,8 @@ export const mockPosts: Post[] = [
     title: 'LeBron James with the clutch 3-pointer to seal the game!',
     description: 'With 1.2 seconds left on the clock, LeBron delivers when it matters most',
     videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    videoProvider: 'youtube',
+    youtubeId: 'YI1GLB-byeQ',
     thumbnailUrl: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&h=450&fit=crop',
     context: {
       sport: 'basketball',
@@ -63,6 +65,8 @@ export const mockPosts: Post[] = [
     title: 'Mahomes throws incredible no-look pass for touchdown',
     description: 'Patrick Mahomes continues to amaze with his incredible arm talent',
     videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    videoProvider: 'youtube',
+    youtubeId: 'S1QQ6YiUO_I',
     thumbnailUrl: 'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=800&h=450&fit=crop',
     context: {
       sport: 'football',
@@ -115,6 +119,8 @@ export const mockPosts: Post[] = [
     title: 'Messi\'s free kick masterclass - top corner perfection',
     description: 'Lionel Messi shows why he\'s the GOAT with this stunning free kick',
     videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    videoProvider: 'youtube',
+    youtubeId: 'pORjd5ZkTrs',
     thumbnailUrl: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&h=450&fit=crop',
     context: {
       sport: 'soccer',
@@ -166,6 +172,8 @@ export const mockPosts: Post[] = [
     title: 'Steph Curry from WAY downtown - logo shot!',
     description: 'Curry pulls up from the logo and drains it like it\'s nothing',
     videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    videoProvider: 'youtube',
+    youtubeId: 'uC0VY3EeBnA',
     thumbnailUrl: 'https://images.unsplash.com/photo-1574623452334-1e0ac2b3ccb4?w=800&h=450&fit=crop',
     context: {
       sport: 'basketball',
@@ -219,6 +227,8 @@ export const mockPosts: Post[] = [
     title: 'Aaron Judge crushes 450ft home run to center field',
     description: 'Judge absolutely demolishes this baseball - what a moonshot!',
     videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+    videoProvider: 'youtube',
+    youtubeId: 'nLz47wO26Bk',
     thumbnailUrl: 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=800&h=450&fit=crop',
     context: {
       sport: 'baseball',
@@ -271,6 +281,8 @@ export const mockPosts: Post[] = [
     title: 'Giannis posterizes defender with massive dunk',
     description: 'The Greek Freak shows no mercy on this thunderous slam!',
     videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+    videoProvider: 'youtube',
+    youtubeId: 'd8FYUdPPUy4',
     thumbnailUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=450&fit=crop',
     context: {
       sport: 'basketball',

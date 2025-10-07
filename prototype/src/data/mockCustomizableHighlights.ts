@@ -5,6 +5,8 @@ export const mockCustomizableHighlights: CustomizableHighlight[] = [
     id: 'custom1',
     title: 'Mahomes No-Look TD Pass',
     videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+    videoProvider: 'youtube',
+    youtubeId: 'S1QQ6YiUO_I',
     thumbnailUrl: 'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=800&h=450&fit=crop',
     context: {
       sport: 'football',
@@ -78,6 +80,8 @@ export const mockCustomizableHighlights: CustomizableHighlight[] = [
     id: 'custom2',
     title: 'Curry Logo Three',
     videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
+    videoProvider: 'youtube',
+    youtubeId: 'uC0VY3EeBnA',
     thumbnailUrl: 'https://images.unsplash.com/photo-1574623452334-1e0ac2b3ccb4?w=800&h=450&fit=crop',
     context: {
       sport: 'basketball',
@@ -151,6 +155,8 @@ export const mockCustomizableHighlights: CustomizableHighlight[] = [
     id: 'custom3',
     title: 'Messi Free Kick Goal',
     videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    videoProvider: 'youtube',
+    youtubeId: 'pORjd5ZkTrs',
     thumbnailUrl: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&h=450&fit=crop',
     context: {
       sport: 'soccer',

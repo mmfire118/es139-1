@@ -59,6 +59,9 @@ export interface Post {
   title: string;
   description: string;
   videoUrl: string;
+  // Optional provider fields to support YouTube inline playback in addition to MP4
+  videoProvider?: 'mp4' | 'youtube';
+  youtubeId?: string; // used when videoProvider === 'youtube'
   thumbnailUrl: string;
   context: GameContext;
   stats: PlayerStats[];

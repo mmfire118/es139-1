@@ -90,7 +90,7 @@ export default function PostCard({ post, onVote }: PostCardProps) {
           <Link to={`/post/${post.id}`} className="block mb-3">
             <div className="relative rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700 aspect-video">
               <img
-                src={post.thumbnailUrl}
+                src={post.videoProvider === 'youtube' && post.youtubeId ? `https://i.ytimg.com/vi/${post.youtubeId}/hqdefault.jpg` : post.thumbnailUrl}
                 alt={post.title}
                 className="w-full h-full object-cover group-hover:opacity-90 transition-opacity"
               />

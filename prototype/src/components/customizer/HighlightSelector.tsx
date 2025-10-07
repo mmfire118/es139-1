@@ -42,7 +42,7 @@ export default function HighlightSelector({
             {/* Thumbnail */}
             <div className="relative aspect-video rounded-t-lg overflow-hidden bg-gray-200 dark:bg-gray-700">
               <img
-                src={highlight.thumbnailUrl}
+                src={highlight.videoProvider === 'youtube' && highlight.youtubeId ? `https://i.ytimg.com/vi/${highlight.youtubeId}/hqdefault.jpg` : highlight.thumbnailUrl}
                 alt={highlight.title}
                 className="w-full h-full object-cover"
               />

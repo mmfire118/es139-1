@@ -72,6 +72,8 @@ export default function DataCustomizer() {
       title: postTitle || currentHighlight.title,
       description: postDescription || `Customized highlight with data overlays: ${selectedFactsDetails}`,
       videoUrl: currentHighlight.videoUrl,
+      videoProvider: currentHighlight.videoProvider,
+      youtubeId: currentHighlight.youtubeId,
       thumbnailUrl: currentHighlight.thumbnailUrl,
       context: currentHighlight.context,
       stats: [], // Convert facts to stats format if needed

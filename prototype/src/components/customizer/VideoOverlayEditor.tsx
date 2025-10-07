@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import InlineVideo from '../post/InlineVideo';
 import { Play, Pause, Volume2, Maximize, Eye, EyeOff, Grid } from 'lucide-react';
 import VideoOverlay from './VideoOverlay';
 import StyleSettings from './StyleSettings';
@@ -200,22 +201,16 @@ export default function VideoOverlayEditor({ highlight, onOverlayChange }: Video
           ref={containerRef}
           className="relative w-full max-w-4xl aspect-video bg-black rounded-lg overflow-hidden"
         >
-          <video
-            ref={videoRef}
-            className="w-full h-full object-contain"
+          <InlineVideo
+            provider={highlight.videoProvider ?? 'mp4'}
+            src={(highlight.videoProvider === 'youtube' && highlight.youtubeId) ? highlight.youtubeId : highlight.videoUrl}
             poster={highlight.thumbnailUrl}
+            className="w-full h-full object-contain"
+            controls
+            onTimeUpdate={(t) => setCurrentVideoTime(t)}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
-            onTimeUpdate={(e) => {
-              setCurrentVideoTime(e.currentTarget.currentTime);
-            }}
-            onSeeked={(e) => {
-              setCurrentVideoTime(e.currentTarget.currentTime);
-            }}
-          >
-            <source src={highlight.videoUrl} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+          />
 
           {/* Video Overlays */}
           {showOverlays && overlays.map(overlay => {
